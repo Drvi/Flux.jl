@@ -278,12 +278,10 @@ Base.sum(f::Union{Function,Type},xs::TrackedArray) = sum(f.(xs))
 @grad sum(xs; dims = :) = sum(data(xs), dims = dims),
   Δ -> (zero(xs) .+ Δ, )
 
-Base.prod(xs::TrackedArray, dim) = track(prod, xs, dim)
-Base.prod(xs::TrackedArray) = track(prod, xs)
+Base.prod(xs::TrackedArray; dims = :) = track(prod, xs, dims)
 Base.prod(f::Union{Function, Type}, xs::TrackedArray) = prod(f.(xs))
 
-@grad prod(xs) = prod(data(xs)), Δ -> (prod(xs) ./ xs .* Δ,)
-@grad prod(xs, dim) = prod(data(xs), dims = dim),
+@grad prod(xs; dims = :) = prod(data(xs), dims = dims),
   Δ -> (nobacksies(:sum,
           reshape(.*(circshift.([reshape(data(xs), length(xs))], 1:length(xs)-1)...), size(xs)) .* Δ),
         nothing)
